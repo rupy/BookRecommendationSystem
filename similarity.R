@@ -99,3 +99,57 @@ gen.doc.line.vec <- function(db.file.name, use.title){
   names(doc.line.vec) <- NULL
   doc.line.vec
 }
+
+# LDAによって文書におけるトピックの生起確率を求める
+lda_topic_doc <- function(corpus,topic_num=6, K=10,num_iter=25){
+  
+  # LDAの結果を格納
+  # assignments: 長さDのリストで、各要素は整数のベクトルで単語ごとのトピック割り当てを示す
+  # topics: K(トピック数) * V(単語数)の行列で単語（列）がトピック（行）に割り当てられた回数を示す
+  # topic_sums: トピック数Kの長さを持つベクトルで単語が各トピックに割り当てられた総数を示す
+  # document_sums: K（トピック数） * D(ドキュメント数)の行列でそれぞれのドキュメントにおいて単語が各トピックに割り当てられた総数を示す
+  # log.likelihoods:
+  result <- lda.collapsed.gibbs.sampler(
+    corpus$documents,
+    K,
+    corpus$vocab,
+    num_iter, # num iterations
+    0.1,
+    0.1,
+    compute.log.likelihood=TRUE
+  )
+  # 各トピックのトップワードを抽出
+  top.words <- top.topic.words(result$topics, topic_num, by.score=TRUE)
+  # 分母：ドキュメントごとの単語数のベクトル（長さ：ドキュメント数）
+  # document_sumsの正規化（ドキュメントのトピックに割り当てられる確率（割合））
+  topic.proportions <- t(result$document_sums) / colSums(result$document_sums)
+  # NAになっている部分は1/Kにする（1/Kなのは均等になるから？、わり算でNAが生じる事がある？）
+  topic.proportions[is.na(topic.proportions)] <- 1 / K
+  # top.wordsを結合して列名にする
+  colnames(topic.proportions) <- apply(top.words, 2, paste, collapse=" ")
+  rownames(topic.proportions) <- names(corpus$documents)
+  # デーブルの構造変換を行う
+  topic.proportions
+}
+
+# LDAによってトピックがどの文書に割り当てられるかの確率を求める
+lda_doc_topic <- function(corpus, topic_num=6, K=10,num_iter=25){
+  result <- lda.collapsed.gibbs.sampler(
+    corpus$documents,
+    K,
+    corpus$vocab,
+    num_iter, # num iterations
+    0.1,
+    0.1,
+    compute.log.likelihood=TRUE
+  )
+  top.words <- top.topic.words(result$topics, topic_num, by.score=TRUE)
+  # トピックごとのドキュメントに割り当てられる割合
+  # 行がトピック、列がドキュメントを表す
+  doc.proportions <- result$document_sums/rowSums(result$document_sums)
+  colnames(doc.proportions) <- names(corpus$documents)
+  doc.proportions[is.na(doc.proportions)] <- 1 / length(doclines)
+  rownames(doc.proportions) <- apply(top.words, 2, paste, collapse=" ")
+  doc.proportions  
+}
+
