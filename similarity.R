@@ -83,10 +83,9 @@ gen.words.line <- function(text, pos=NULL){
 }
 
 # データベースから読みだした書籍情報からスペース区切り文字列のベクトルを生成する
-gen.doc.line.vec <- function(db.file.name, use.title){
+gen.doc.line.vec <- function(book.info.df, use.title){
   
   # 書籍情報をDBから読み出し
-  book.info.df <- get.book.info.from.db(db.file.name)
   boktext.vec <- NULL
   if(use.title){
     text.vec <- sapply(seq(length(book.info.df$title)), function(i){
@@ -152,4 +151,33 @@ lda_doc_topic <- function(corpus, topic_num=6, K=10,num_iter=25){
   rownames(doc.proportions) <- apply(top.words, 2, paste, collapse=" ")
   doc.proportions  
 }
+
+# トピックの生起確率の棒グラフを生成
+topic_bar <-function(topic.proportions, book.title.vec, pickup=0){
+  
+  if(pickup==0){
+    # 番号が決まっていなければランダムに決める
+    pickup <- floor(runif(1,1,ncol(topic.proportions)+1))
+  }
+  # グラフに不要な０％の部分を除去
+  bar_data <- topic.proportions[topic.proportions[,pickup]!=0,pickup]
+  # 書籍名
+  names(bar_data) <- book.title.vec[topic.proportions[,pickup]!=0]
+  # ベクトルの長さが１だとラベルが消えてしまうので復元する
+  #if(length(pie_data) == 1){ 
+  #  names(pie_data)=rownames(topic.proportions)[topic.proportions[,pick_up]!=0]
+  #}
+  bar_data <- sort(bar_data, de=FALSE)[1:20]
+  # 表題
+  title <- colnames(topic.proportions)[pickup]
+  # pie(pie_data, col=rainbow(length(pie_data)),labels = names(pie_data),main=title)
+  par(mar=c(5, 30, 2, 2))
+  par(ps=10)
+  barplot(bar_data, col=rainbow(length(bar_data)), beside=TRUE, horiz=TRUE, las=1,
+          xlab="proportion",legend.text = rownames(bar_data),main=title)
+  
+  print(pickup)
+  
+}
+
 
