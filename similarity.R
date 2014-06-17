@@ -218,7 +218,7 @@ doc.bar <-function(doc.proportions,pickup=0){
   
 }
 
-# 
+# 類似度を求めるためのコサインの定義
 my.cosine <- function( a, b=NULL ){
   if( is.matrix(a) && is.null(b) ){
     apply(a, 2, function(x){
@@ -238,10 +238,11 @@ my.cosine <- function( a, b=NULL ){
 }
 
 # 類似書籍を求める
-get.similar.book <- function(num,doc.propotions){
-  cat(colnames(doc.proportions)[num],"と似ている書籍","\n")
-  cos <- my.cosine(a=doc.proportions,
-                  b=doc.proportions[,num])
+get.similar.book <- function(num, topic.proportions){
+  topic.proportions <- t(topic.proportions)
+  cat(colnames(topic.proportions)[num],"と似ている書籍","\n")
+  cos <- my.cosine(a=topic.proportions,
+                  b=topic.proportions[,num])
   cos <- sort(cos,de=T)
   cos
   
