@@ -18,7 +18,8 @@ K <- 100
 topic.proportions <- lda_topic_doc(corpus,topic_num=5,K=K)
 rownames(topic.proportions) <- book.info.df$title
 # トピックの棒グラフ
-topic.bar(topic.proportions, book.info.df$title)
-
+topic.bar(topic.proportions)
+# トピックの円グラフ
 topic.pie(topic.proportions)
+doc.bar(topic.proportions)
 

@@ -152,23 +152,23 @@ lda_doc_topic <- function(corpus, topic_num=6, K=10,num_iter=25){
 }
 
 # トピックの生起確率の棒グラフを生成
-topic.bar <-function(topic.proportions, book.title.vec, pickup=-1){
+topic.bar <-function(topic.proportions, pickup = 0){
   
-  if(pickup == -1){
+  if(pickup == 0){
     # 番号が決まっていなければランダムに決める
     pickup <- floor(runif(1,1,ncol(topic.proportions)))
   }
   # グラフに不要な０％の部分を除去
-  bar.data <- topic.proportions[topic.proportions[,pickup]!=0,pickup]
+  bar.data <- topic.proportions[pickup, topic.proportions[pickup,]!=0]    
   # 書籍名
-  names(bar.data) <- book.title.vec[topic.proportions[,pickup]!=0]
+  names(bar.data) <- colnames(topic.proportions)[topic.proportions[pickup,]!=0]
   # ベクトルの長さが１だとラベルが消えてしまうので復元する
   #if(length(pie_data) == 1){ 
   #  names(pie_data)=rownames(topic.proportions)[topic.proportions[,pick_up]!=0]
   #}
-  bar.data <- sort(bar.data, de=FALSE)[1:20]
+  bar.data <- sort(bar.data, de=FALSE)
   # 表題
-  title <- colnames(topic.proportions)[pickup]
+  title <- rownames(topic.proportions)[pickup]
   # pie(pie_data, col=rainbow(length(pie_data)),labels = names(pie_data),main=title)
 
   barplot(bar.data, col=rainbow(length(bar.data)), beside=TRUE, horiz=TRUE, las=1,
@@ -179,23 +179,23 @@ topic.bar <-function(topic.proportions, book.title.vec, pickup=-1){
 }
 
 # トピックの円グラフを作成
-topic.pie <-function(topic.proportions, pickup=-1){
+topic.pie <-function(topic.proportions, pickup = 0){
   
-  title <- ""
-  if(pickup == -1){
+  if(pickup == 0){
     # 番号が決まっていなければランダムに決める
-    pickup <- floor(runif(1,1,nrow(topic.proportions)))
-    title <- rownames(topic.proportions)[pickup]
+    pickup <- floor(runif(1, 1, nrow(topic.proportions)))
   }
-  pie.data <- topic.proportions[pickup,topic.proportions[pickup,]!=0]    
+  title <- rownames(topic.proportions)[pickup]
   # グラフに不要な０％の部分を除去
+  pie.data <- topic.proportions[pickup, topic.proportions[pickup,]!=0]    
   # ベクトルの長さが１だとラベルが消えてしまうので復元する
   if(length(pie.data) == 1){ 
-    names(pie.data)=colnames(topic.proportions)[topic.proportions[pickup,]!=0]
+    names(pie.data) <- colnames(topic.proportions)[topic.proportions[pickup,]!=0]
   }
   pie.data <- sort(pie.data, de=FALSE)
+  print(sum(pie.data))
   # 表題
-  pie(pie.data, col=rainbow(length(pie.data)),labels = names(pie.data),main=title,radius=0.5)
+  pie(pie.data, col=rainbow(length(pie.data)), labels = names(pie.data), main=title, radius=0.5)
   cat("title:", title, " pickup:", pickup)
 }
 
