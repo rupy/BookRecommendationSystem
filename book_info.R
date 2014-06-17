@@ -1,5 +1,9 @@
 source("similarity.R")
 
+#
+# 類似度の計算
+#
+
 # データベースの読み込み
 book.info.df <- get.book.info.from.db(db.file.name)
 # lexicalize関数に与える引数はスペース区切りでなければならない．
@@ -30,4 +34,7 @@ doc.proportions <- doc.proportions.by.lda(corpus,topic_num=5,K=K)
 colnames(doc.proportions) <- book.info.df$title
 # 文書の棒グラフ
 doc.bar(doc.proportions)
+
+# 類似書籍を求める
+get.similar.book(1,topic.proportions)[1:20]
 

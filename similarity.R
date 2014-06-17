@@ -160,16 +160,15 @@ topic.bar <-function(topic.proportions, pickup = 0){
   }
   # グラフに不要な０％の部分を除去
   bar.data <- topic.proportions[pickup, topic.proportions[pickup,]!=0]    
-  # 書籍名
+  # トピック列
   names(bar.data) <- colnames(topic.proportions)[topic.proportions[pickup,]!=0]
   # 昇順にソート
   bar.data <- sort(bar.data, de=FALSE)
   # 表題
   title <- rownames(topic.proportions)[pickup]
-
+  # グラフの描画
   barplot(bar.data, col=rainbow(length(bar.data)), beside=TRUE, horiz=TRUE, las=1,
           xlab="proportion",legend.text = rownames(bar.data),main=title)
-  
   cat("title:", title, " pickup:", pickup)
   
 }
@@ -181,6 +180,7 @@ topic.pie <-function(topic.proportions, pickup = 0){
     # 番号が決まっていなければランダムに決める
     pickup <- floor(runif(1, 1, nrow(topic.proportions)))
   }
+  # 表題
   title <- rownames(topic.proportions)[pickup]
   # グラフに不要な０％の部分を除去
   pie.data <- topic.proportions[pickup, topic.proportions[pickup,]!=0]    
@@ -190,7 +190,7 @@ topic.pie <-function(topic.proportions, pickup = 0){
   }
   # 昇順にソート
   pie.data <- sort(pie.data, de=FALSE)
-  # 表題
+  # グラフの描画
   pie(pie.data, col=rainbow(length(pie.data)), labels = names(pie.data), main=title, radius=0.5)
   cat("title:", title, " pickup:", pickup)
 }
@@ -210,9 +210,40 @@ doc.bar <-function(doc.proportions,pickup=0){
   bar.data <- sort(bar.data, de=FALSE)
   # 表題
   title <- rownames(doc.proportions)[pickup]
+  # グラフの描画
   barplot(bar.data, col=rainbow(length(bar.data)), beside=TRUE, horiz=TRUE, las=1,
           xlab="proportion",main=title)
   
   cat("topic:", title, " pickup:", pickup)
   
 }
+
+# 
+my.cosine <- function( a, b=NULL ){
+  if( is.matrix(a) && is.null(b) ){
+    apply(a, 2, function(x){
+      apply(a, 2, function(y){
+        crossprod(x, y) / (sqrt(crossprod(x) * crossprod(y)))
+      })
+    })
+  }
+  else if( is.matrix(a) && is.vector(b) ){
+    apply(a, 2, function(x){
+      crossprod(x, b) / (sqrt(crossprod(x) * crossprod(b)))
+    })
+  }
+  else if( is.vector(a) && is.vector(b) ){
+    crossprod(a, b) / (sqrt(crossprod(a) * crossprod(b)))
+  }
+}
+
+# 類似書籍を求める
+get.similar.book <- function(num,doc.propotions){
+  cat(colnames(doc.proportions)[num],"と似ている書籍","\n")
+  cos <- my.cosine(a=doc.proportions,
+                  b=doc.proportions[,num])
+  cos <- sort(cos,de=T)
+  cos
+  
+}
+
