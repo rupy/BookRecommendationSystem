@@ -126,7 +126,6 @@ lda_topic_doc <- function(corpus,topic_num=6, K=10,num_iter=25){
   topic.proportions[is.na(topic.proportions)] <- 1 / K
   # top.wordsを結合して列名にする
   colnames(topic.proportions) <- apply(top.words, 2, paste, collapse=" ")
-  rownames(topic.proportions) <- names(corpus$documents)
   # デーブルの構造変換を行う
   topic.proportions
 }
@@ -153,31 +152,50 @@ lda_doc_topic <- function(corpus, topic_num=6, K=10,num_iter=25){
 }
 
 # トピックの生起確率の棒グラフを生成
-topic_bar <-function(topic.proportions, book.title.vec, pickup=0){
+topic.bar <-function(topic.proportions, book.title.vec, pickup=-1){
   
-  if(pickup==0){
+  if(pickup == -1){
     # 番号が決まっていなければランダムに決める
-    pickup <- floor(runif(1,1,ncol(topic.proportions)+1))
+    pickup <- floor(runif(1,1,ncol(topic.proportions)))
   }
   # グラフに不要な０％の部分を除去
-  bar_data <- topic.proportions[topic.proportions[,pickup]!=0,pickup]
+  bar.data <- topic.proportions[topic.proportions[,pickup]!=0,pickup]
   # 書籍名
-  names(bar_data) <- book.title.vec[topic.proportions[,pickup]!=0]
+  names(bar.data) <- book.title.vec[topic.proportions[,pickup]!=0]
   # ベクトルの長さが１だとラベルが消えてしまうので復元する
   #if(length(pie_data) == 1){ 
   #  names(pie_data)=rownames(topic.proportions)[topic.proportions[,pick_up]!=0]
   #}
-  bar_data <- sort(bar_data, de=FALSE)[1:20]
+  bar.data <- sort(bar.data, de=FALSE)[1:20]
   # 表題
   title <- colnames(topic.proportions)[pickup]
   # pie(pie_data, col=rainbow(length(pie_data)),labels = names(pie_data),main=title)
-  par(mar=c(5, 30, 2, 2))
-  par(ps=10)
-  barplot(bar_data, col=rainbow(length(bar_data)), beside=TRUE, horiz=TRUE, las=1,
-          xlab="proportion",legend.text = rownames(bar_data),main=title)
+
+  barplot(bar.data, col=rainbow(length(bar.data)), beside=TRUE, horiz=TRUE, las=1,
+          xlab="proportion",legend.text = rownames(bar.data),main=title)
   
-  print(pickup)
+  cat("title:", title, " pickup:", pickup)
   
 }
 
+# トピックの円グラフを作成
+topic.pie <-function(topic.proportions, pickup=-1){
+  
+  title <- ""
+  if(pickup == -1){
+    # 番号が決まっていなければランダムに決める
+    pickup <- floor(runif(1,1,nrow(topic.proportions)))
+    title <- rownames(topic.proportions)[pickup]
+  }
+  pie.data <- topic.proportions[pickup,topic.proportions[pickup,]!=0]    
+  # グラフに不要な０％の部分を除去
+  # ベクトルの長さが１だとラベルが消えてしまうので復元する
+  if(length(pie.data) == 1){ 
+    names(pie.data)=colnames(topic.proportions)[topic.proportions[pickup,]!=0]
+  }
+  pie.data <- sort(pie.data, de=FALSE)
+  # 表題
+  pie(pie.data, col=rainbow(length(pie.data)),labels = names(pie.data),main=title,radius=0.5)
+  cat("title:", title, " pickup:", pickup)
+}
 
