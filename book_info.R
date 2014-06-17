@@ -15,11 +15,19 @@ small.corpus <- lexicalize(doc.line.vec[1:100], lower=TRUE)
 # トピック数
 K <- 100
 # LDAによって文書におけるトピックの確率を得る
-topic.proportions <- lda_topic_doc(corpus,topic_num=5,K=K)
+topic.proportions <- topic.proportions.by.lda(corpus,topic_num=5,K=K)
 rownames(topic.proportions) <- book.info.df$title
 # トピックの棒グラフ
 topic.bar(topic.proportions)
 # トピックの円グラフ
 topic.pie(topic.proportions)
-doc.bar(topic.proportions)
+
+
+# トピック数
+K <- 100
+# 文書の確率を得る
+doc.proportions <- doc.proportions.by.lda(corpus,topic_num=5,K=K)
+colnames(doc.proportions) <- book.info.df$title
+# 文書の棒グラフ
+doc.bar(doc.proportions)
 

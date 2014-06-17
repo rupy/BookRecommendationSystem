@@ -100,7 +100,7 @@ gen.doc.line.vec <- function(book.info.df, use.title){
 }
 
 # LDAによって文書におけるトピックの生起確率を求める
-lda_topic_doc <- function(corpus,topic_num=6, K=10,num_iter=25){
+topic.proportions.by.lda <- function(corpus,topic_num=6, K=10,num_iter=25){
   
   # LDAの結果を格納
   # assignments: 長さDのリストで、各要素は整数のベクトルで単語ごとのトピック割り当てを示す
@@ -131,7 +131,7 @@ lda_topic_doc <- function(corpus,topic_num=6, K=10,num_iter=25){
 }
 
 # LDAによってトピックがどの文書に割り当てられるかの確率を求める
-lda_doc_topic <- function(corpus, topic_num=6, K=10,num_iter=25){
+doc.proportions.by.lda <- function(corpus, topic_num=6, K=10,num_iter=25){
   result <- lda.collapsed.gibbs.sampler(
     corpus$documents,
     K,
@@ -146,7 +146,7 @@ lda_doc_topic <- function(corpus, topic_num=6, K=10,num_iter=25){
   # 行がトピック、列がドキュメントを表す
   doc.proportions <- result$document_sums/rowSums(result$document_sums)
   colnames(doc.proportions) <- names(corpus$documents)
-  doc.proportions[is.na(doc.proportions)] <- 1 / length(doclines)
+  doc.proportions[is.na(doc.proportions)] <- 1 / length(corpus$documents)
   rownames(doc.proportions) <- apply(top.words, 2, paste, collapse=" ")
   doc.proportions  
 }
@@ -162,14 +162,10 @@ topic.bar <-function(topic.proportions, pickup = 0){
   bar.data <- topic.proportions[pickup, topic.proportions[pickup,]!=0]    
   # 書籍名
   names(bar.data) <- colnames(topic.proportions)[topic.proportions[pickup,]!=0]
-  # ベクトルの長さが１だとラベルが消えてしまうので復元する
-  #if(length(pie_data) == 1){ 
-  #  names(pie_data)=rownames(topic.proportions)[topic.proportions[,pick_up]!=0]
-  #}
+  # 昇順にソート
   bar.data <- sort(bar.data, de=FALSE)
   # 表題
   title <- rownames(topic.proportions)[pickup]
-  # pie(pie_data, col=rainbow(length(pie_data)),labels = names(pie_data),main=title)
 
   barplot(bar.data, col=rainbow(length(bar.data)), beside=TRUE, horiz=TRUE, las=1,
           xlab="proportion",legend.text = rownames(bar.data),main=title)
@@ -192,10 +188,31 @@ topic.pie <-function(topic.proportions, pickup = 0){
   if(length(pie.data) == 1){ 
     names(pie.data) <- colnames(topic.proportions)[topic.proportions[pickup,]!=0]
   }
+  # 昇順にソート
   pie.data <- sort(pie.data, de=FALSE)
-  print(sum(pie.data))
   # 表題
   pie(pie.data, col=rainbow(length(pie.data)), labels = names(pie.data), main=title, radius=0.5)
   cat("title:", title, " pickup:", pickup)
 }
 
+# 文書の生起確率の棒グラフを生成
+doc.bar <-function(doc.proportions,pickup=0){
+  
+  if(pickup==0){
+    # 番号が決まっていなければランダムに決める
+    pickup <- floor(runif(1,1,nrow(doc.proportions)))
+  }
+  # グラフに不要な０％の部分を除去
+  bar.data <- doc.proportions[pickup,doc.proportions[pickup,]!=0]
+  # 書籍名
+  names(bar.data) <- colnames(doc.proportions)[doc.proportions[pickup,]!=0]
+  # 昇順にソート
+  bar.data <- sort(bar.data, de=FALSE)
+  # 表題
+  title <- rownames(doc.proportions)[pickup]
+  barplot(bar.data, col=rainbow(length(bar.data)), beside=TRUE, horiz=TRUE, las=1,
+          xlab="proportion",main=title)
+  
+  cat("topic:", title, " pickup:", pickup)
+  
+}
