@@ -254,7 +254,8 @@ cosine.mat <- function(doc.proportions){
 }
 
 # 類似行列から類似ランク行列を生成
-rank.mat <- function(cos.mat){
-  apply(1-cos.mat, 1, rank, ties.method = c("first"))
+similar.rank.mat <- function(cos.mat){
+  rank.mat <-apply(1-cos.mat, 1, rank, ties.method = c("first"))
+  rank.mat
 }
 

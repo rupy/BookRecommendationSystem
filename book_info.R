@@ -38,3 +38,7 @@ doc.bar(doc.proportions)
 # 類似書籍を求める
 get.similar.book(1,topic.proportions)[1:20]
 
+# コサイン
+cos.mat <- cosine.mat(doc.proportions)
+# 類似ランク行列
+rank.mat <- similar.rank.mat(cos.mat)
