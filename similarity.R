@@ -245,6 +245,16 @@ get.similar.book <- function(num, topic.proportions){
                   b=topic.proportions[,num])
   cos <- sort(cos,de=T)
   cos
-  
+}
+
+# 類似度を測るため，行列から類似行列を生成する
+cosine.mat <- function(doc.proportions){
+  cos.mat <- my.cosine(a=doc.proportions)
+  cos.mat
+}
+
+# 類似行列から類似ランク行列を生成
+rank.mat <- function(cos.mat){
+  apply(1-cos.mat, 1, rank, ties.method = c("first"))
 }
 
