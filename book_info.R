@@ -42,3 +42,10 @@ get.similar.book(1,topic.proportions)[1:20]
 cos.mat <- cosine.mat(doc.proportions)
 # 類似ランク行列
 rank.mat <- similar.rank.mat(cos.mat)
+
+source("difficulty.R")
+
+#
+# 難易度の計算
+#
+
