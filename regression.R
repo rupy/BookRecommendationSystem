@@ -16,6 +16,20 @@ get.estimated.book.difficulty <- function(){
   books.df
 }
 
+
+# 2つの文字列ベクトルをそれぞれの要素に対して結合
+add_str_vec <- function(vec1, vec2){
+  if(length(vec1) == length(vec2)){
+    res <- c()
+    for( i in seq(length(vec1))){
+      res <- c(res,paste(vec1[i], vec2[i], collapse="",sep=""))
+    }
+  }else{
+    print("長さが揃っていません")
+  }
+  res
+}
+
 # 線形回帰分析
 linear.regression <- function(contents.vec, difficulty.vec){
   loc.rate <- create.rate.mat(contents.vec)
